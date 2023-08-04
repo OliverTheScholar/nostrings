@@ -21,8 +21,24 @@ module.exports = {
         },
         },
         {
-          test: /.(css|scss)$/,
-          use: ['style-loader', 'css-loader', 'sass-loader']
+          test: /\.css$/,
+          use: ['style-loader', 'css-loader', 'postcss-loader']
+        },
+        {
+          test: /\.(png|jpe?g|gif)$/i,
+          use: [
+            {
+              loader: 'file-loader',
+            },
+          ],
+        },
+        {
+          test: /\.html$/,
+          use: [
+            {
+              loader: 'html-loader',
+            },
+          ],
         },
       ],
   },
@@ -32,15 +48,15 @@ module.exports = {
       filename: './index.html',
     }),
   ],
-  devServer: {
-    proxy: {
-        '/api/**': 'http://localhost:3000',
-      },
-    static: {
-      directory: path.join(__dirname, 'build'),
+  devServer : {
+    open: 'http://localhost:8080',
+    static : {
+        directory : path.join(__dirname)
     },
-
-
-  },
-
+    compress: true,
+    port : 8080,
+    proxy : {
+        '/' : 'http://localhost:3000'
+    }
+},
 }

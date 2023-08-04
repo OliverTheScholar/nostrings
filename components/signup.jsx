@@ -2,54 +2,84 @@ import React, { useEffect, useId, useState } from "react";
 import ReactDOM from "react-dom/client";
 import { useNavigate } from 'react-router-dom'
 import LoginTitle from "../components/loginTitle.jsx"
+import {
+    relayInit,
+    generatePrivateKey,
+    getPublicKey,
+    getEventHash,
+    getSignature, 
+    SimplePool
+  } from "nostr-tools";
+  import 'websocket-polyfill'
 
 
 
-
-const Login = (props) => {
+const Signup = (props) => {
     
     // let username = props.username;
     let setUser = props.setUser;
 
+    const [buttonState, setButtonState] = useState('Generate private key');
+    const [skState, setSecretState] = useState();
+    const [pkState, setPublicState] = useState();
 
     const [input, setInput] = useState();
     const nav = useNavigate()
 
     const handleButtonClick = () => {
-        props.handleLogin(input, props.updateState);
-        navigateToFeed();
+        if (buttonState === 'Generate private key') {
+            // generate private key and add to input field
+            const newSk = generatePrivateKey();
+            setSecretState(newSk);
+            setButtonState('Generate public key')
+        
+        }
+        else if (buttonState === 'Generate public key') {
+            // generate public key and add to input field
+            const newPk = getPublicKey(skState);
+            setPublicState(newPk);
+            setButtonState('Enter the protocol')
+      
+        }
+        else if (buttonState === 'Enter the protocol') {
+            console.log('hi')
+
+            props.handleLogin(skState, pkState, input)
+
+            navigateToFeed()
+            // add the value of all the input fields to state 
+            // navigate to feed
+
+        }
     }
     
     const navigateToFeed = () => {
         setUser(input)
         nav("/feed")
     }
-    const navigateToSignup = () => {
-        nav("/signup")
-    }
 
     const handleInput = (e) => {
         setInput(e.target.value);
         console.log(input)
     }
+    // setButtonState('Generate private key');
     return (
-        
         
         <div style={styles.container}>
         <LoginTitle></LoginTitle>
-            <input placeholder={' nickname'}style={styles.inputBox}id='userinput' onChange={handleInput}></input>
-            <input placeholder={' private key'}style={styles.inputBox}></input>
-            <button style={styles.button} onClick={handleButtonClick}>Login</button>
-            <button style={styles.signUpButton} onClick={navigateToSignup}>create account</button>
+            <input placeholder={' private key'}style={styles.inputBox}id='userinput' onChange={handleInput} value={skState}></input>
+            <input placeholder={' public key'}style={styles.inputBox} value={pkState}></input>
+            <input placeholder={' add a nickname'}style={styles.inputBox} onChange={handleInput}></input>
+            <button style={styles.button} onClick={handleButtonClick}>{buttonState}</button>
         
         </div>
-    )
+)
 }
 const styles = {
     container: {
       border: '1px solid black',
       borderRadius: '10px',
-      height: '300px',
+      height: '350px',
       width: '600px',
       flex: 1,
       marginBottom: '20px',
@@ -111,5 +141,5 @@ const styles = {
       }
   };
 
-  export default Login;
+  export default Signup;
 
